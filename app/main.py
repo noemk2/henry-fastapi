@@ -49,7 +49,8 @@ df = pd.concat([hulu, amazon, disney, netflix])
 
 @app.get("/")
 def read_root():
-  return {hulu.keys()[0]}
+  pass
+  # return {hulu.keys()[0]}
 
 
 @app.get("/get_max_duration/")
