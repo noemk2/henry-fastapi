@@ -53,10 +53,8 @@ def read_root():
   # return {hulu.keys()[0]}
 
 
-@app.get("/get_max_duration/")
-# Película con mayor duración con filtros opcionales de AÑO, PLATAFORMA Y TIPO DE DURACIÓN
-# -> string
 # todo : el duration_type es irrelevante
+@app.get("/get_max_duration/")
 async def get_max_duration(year: int = None,
                            platform: str = None,
                            duration_type: str = None):
@@ -82,7 +80,6 @@ async def get_max_duration(year: int = None,
   if duration_type is not None:
     df_f = df_f.loc[df_f['duration_type'] == duration_type]
   else:
-
     respuesta = df_f.iloc[0]["title"]
     return {'pelicula': respuesta}
 
@@ -103,7 +100,14 @@ async def get_score_count(platform: str, scored: float, year: int):
   platform_df = select_platform.loc[select_platform['release_year'] == year]
   merged_df = pd.merge(platform_df, new_df, on="id")
   merged_df = merged_df[merged_df['score'] > scored]
-  return len(merged_df)
+  # return len(merged_df)
+  return {
+        'plataforma': platform,
+        'cantidad': len(merged_df),
+        'anio': year,
+        'score': scored 
+    }
+
 
 
 # Cantidad de películas por plataforma con filtro de PLATAFORMA.
@@ -111,7 +115,8 @@ async def get_score_count(platform: str, scored: float, year: int):
 @app.get("/get_count_platform/")
 async def get_count_platform(platform: str):
   select_platform = platforms[platform.lower()]
-  return len(select_platform)
+  # return len(select_platform)
+  return {'plataforma': platform, 'peliculas': len(select_platform)}
 
 
 # Actor que más se repite según plataforma y año.
@@ -138,7 +143,15 @@ async def get_actor(platform: str, year: int):
 
   df_actores = df_actores.drop(0).reset_index(drop=True)
 
-  return df_actores["actor"][0]
+  # return df_actores["actor"][0]
+  return {
+        'plataforma': plataform,
+        'anio': year,
+        'actor': respuesta,
+        'apariciones': respuesta
+    }
+
+  # return {'rating': rating, 'contenido': respuesta}
 
 
 # tv show  ( streaming)
