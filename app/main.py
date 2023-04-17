@@ -22,10 +22,10 @@ def get_rating():
     ]) 
   return df
 
-def get_df_2():
-  df_2 = pd.read_parquet(current_dir / "app/numeros_f.parquet")
-  df_2= df_2.groupby("movieId")["rating"].mean().reset_index()
-  return df_2
+# def get_df_2():
+#   df_2 = pd.read_parquet(current_dir / "app/numeros_f.parquet")
+#   df_2= df_2.groupby("movieId")["rating"].mean().reset_index()
+#   return df_2
 
 def get_select_plataform(plataforma, anio):
   select_platform = pd.read_parquet(platforms[plataforma.lower()])
@@ -58,7 +58,8 @@ async def get_max_duration(anio: int ,
 
 @app.get('/get_score_count/{plataforma}/{scored}/{anio}')
 async def get_score_count(plataforma: str, scored: float, anio: int):
-  df_2 = get_df_2()
+  # df_2 = get_df_2()
+  df_2 = pd.read_parquet("numeros_ff.parquet")
   select_platform = get_select_plataform(plataforma, anio)
   resultado = get_merge(df_2, select_platform, scored)
 
