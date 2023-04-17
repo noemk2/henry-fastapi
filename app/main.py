@@ -10,33 +10,18 @@ platforms = {
   "amazon": current_dir / 'app/hulu.parquet',
   "disney": current_dir / 'app/hulu.parquet',
   "netflix": current_dir / 'app/hulu.parquet',
-  "uno": current_dir / 'app/1.parquet',
-  "dos": current_dir / 'app/2.parquet',
-  "tres": current_dir / 'app/3.parquet',
-  "cuatro": current_dir / 'app/4.parquet',
-  "cinco": current_dir / 'app/5.parquet',
-  "seis": current_dir / 'app/6.parquet',
-  "siete": current_dir / 'app/7.parquet',
-  "ocho": current_dir / 'app/8.parquet'
 }
 
-df = pd.concat([
+
+def get_rating():
+  df = pd.concat([
   pd.read_parquet(platforms["hulu"]),
   pd.read_parquet(platforms["amazon"]),
   pd.read_parquet(platforms["disney"]),
   pd.read_parquet(platforms["netflix"]),
-])
+    ]) 
+  return df
 
-rating_df = pd.concat([
-      pd.read_parquet(platforms['uno']),
-      pd.read_parquet(platforms['dos']),
-      pd.read_parquet(platforms['tres']),
-      pd.read_parquet(platforms['cuatro']),
-      pd.read_parquet(platforms['cinco']),
-      pd.read_parquet(platforms['seis']),
-      pd.read_parquet(platforms['siete']),
-      pd.read_parquet(platforms['ocho']),
-])
 
 @app.get("/")
 def read_root():
@@ -59,11 +44,10 @@ async def get_max_duration(anio: int ,
 @app.get('/get_score_count/{plataforma}/{scored}/{anio}')
 async def get_score_count(plataforma: str, scored: float, anio: int):
 
-  df_2= rating_df.groupby("movieId")["rating"].mean().reset_index()
-
+  df_2 = pd.read_parquet("numeros_f.parquet")
+  df_2= df_2.groupby("movieId")["rating"].mean().reset_index()
   select_platform = pd.read_parquet(platforms[plataforma.lower()])
   select_platform = select_platform.query('type == "movie" and release_year == @anio')
-
   df_2 = pd.merge(df_2, select_platform, left_on='movieId', right_on="id")
   df_2 = df_2.query('rating_x > @scored')
   df_2 = df_2.shape[0]
@@ -75,16 +59,13 @@ async def get_score_count(plataforma: str, scored: float, anio: int):
         'score': scored 
     }
 
-
 @app.get('/get_count_platform/{plataforma}')
 async def get_count_platform(plataforma: str):
   select_platform = platforms[plataforma.lower()]
   return {'plataforma': plataforma, 'peliculas': len(select_platform)}
 
-
 @app.get('/get_actor/{plataforma}/{anio}')
 async def get_actor(plataforma: str, anio: int):
-
   plataf = pd.read_parquet(platforms[plataforma.lower()])
   plataf = plataf[ plataf["release_year"] == anio]
   plataf = plataf[ plataf["cast"] != 'g']
@@ -101,18 +82,17 @@ async def get_actor(plataforma: str, anio: int):
         'apariciones': apariciones 
     }
 
-
 @app.get('/prod_per_county/{tipo}/{pais}/{anio}')
 async def prod_per_county(tipo: str, pais: str, anio: int):
+  df = get_rating()
   df_f = df.loc[(df['release_year'] == anio) & (df['country'] == pais.lower()) & (df['type'] == tipo)]
   respuesta = df_f.shape[0]
   return {'pais': pais, 'anio': anio, 'peliculas': respuesta}
 
-
 @app.get('/get_contents/{rating}')
 async def get_contents(rating: str):
+  df = get_rating()
   df_f = df.loc[df["rating"] == rating]
   respuesta = df_f.shape[0]
   return {'rating': rating, 'contenido': respuesta}
- 
  
