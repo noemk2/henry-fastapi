@@ -7,3 +7,4 @@ replit.nix
 .config
 __pycache__
 app/__pycache__
+app/test.py
