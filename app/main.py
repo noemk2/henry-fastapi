@@ -44,7 +44,7 @@ async def get_max_duration(anio: int ,
 @app.get('/get_score_count/{plataforma}/{scored}/{anio}')
 async def get_score_count(plataforma: str, scored: float, anio: int):
 
-  df_2 = pd.read_parquet("numeros_f.parquet")
+  df_2 = pd.read_parquet(current_dir / "app/numeros_f.parquet")
   df_2= df_2.groupby("movieId")["rating"].mean().reset_index()
   select_platform = pd.read_parquet(platforms[plataforma.lower()])
   select_platform = select_platform.query('type == "movie" and release_year == @anio')
