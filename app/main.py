@@ -22,6 +22,21 @@ def get_rating():
     ]) 
   return df
 
+def get_df_2():
+  df_2 = pd.read_parquet(current_dir / "app/numeros_f.parquet")
+  df_2= df_2.groupby("movieId")["rating"].mean().reset_index()
+  return df_2
+
+def get_select_plataform(plataforma, anio):
+  select_platform = pd.read_parquet(platforms[plataforma.lower()])
+  select_platform = select_platform.query('type == "movie" and release_year == @anio')
+  return select_platform
+
+def get_merge(df_1, df_2, scored) -> int:
+  df_f = pd.merge(df_1, df_2, left_on='movieId', right_on="id")
+  df_f = df_f.query('rating_x > @scored')
+  return df_f.shape[0]
+
 
 @app.get("/")
 def read_root():
@@ -43,18 +58,13 @@ async def get_max_duration(anio: int ,
 
 @app.get('/get_score_count/{plataforma}/{scored}/{anio}')
 async def get_score_count(plataforma: str, scored: float, anio: int):
-
-  df_2 = pd.read_parquet(current_dir / "app/numeros_f.parquet")
-  df_2= df_2.groupby("movieId")["rating"].mean().reset_index()
-  select_platform = pd.read_parquet(platforms[plataforma.lower()])
-  select_platform = select_platform.query('type == "movie" and release_year == @anio')
-  df_2 = pd.merge(df_2, select_platform, left_on='movieId', right_on="id")
-  df_2 = df_2.query('rating_x > @scored')
-  df_2 = df_2.shape[0]
+  df_2 = get_df_2()
+  select_platform = get_select_plataform(plataforma, anio)
+  resultado = get_merge(df_2, select_platform, scored)
 
   return {
         'plataforma': plataforma,
-        'cantidad': df_2,
+        'cantidad': resultado,
         'anio': anio,
         'score': scored 
     }
