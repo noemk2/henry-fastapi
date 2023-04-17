@@ -9,7 +9,15 @@ platforms = {
   "hulu": current_dir / 'app/hulu.parquet',
   "amazon": current_dir / 'app/hulu.parquet',
   "disney": current_dir / 'app/hulu.parquet',
-  "netflix": current_dir / 'app/hulu.parquet'
+  "netflix": current_dir / 'app/hulu.parquet',
+  "uno": current_dir / 'app/1.parquet',
+  "dos": current_dir / 'app/2.parquet',
+  "tres": current_dir / 'app/3.parquet',
+  "cuatro": current_dir / 'app/4.parquet',
+  "cinco": current_dir / 'app/5.parquet',
+  "seis": current_dir / 'app/6.parquet',
+  "siete": current_dir / 'app/7.parquet',
+  "ocho": current_dir / 'app/8.parquet'
 }
 
 df = pd.concat([
@@ -17,6 +25,17 @@ df = pd.concat([
   pd.read_parquet(platforms["amazon"]),
   pd.read_parquet(platforms["disney"]),
   pd.read_parquet(platforms["netflix"]),
+])
+
+rating_df = pd.concat([
+      pd.read_parquet(platforms['uno']),
+      pd.read_parquet(platforms['dos']),
+      pd.read_parquet(platforms['tres']),
+      pd.read_parquet(platforms['cuatro']),
+      pd.read_parquet(platforms['cinco']),
+      pd.read_parquet(platforms['seis']),
+      pd.read_parquet(platforms['siete']),
+      pd.read_parquet(platforms['ocho']),
 ])
 
 @app.get("/")
@@ -39,9 +58,8 @@ async def get_max_duration(anio: int ,
 
 @app.get('/get_score_count/{plataforma}/{scored}/{anio}')
 async def get_score_count(plataforma: str, scored: float, anio: int):
-  df_2 = pd.read_parquet(current_dir / 'app/numeros.parquet')
 
-  df_2= df_2.groupby("movieId")["rating"].mean().reset_index()
+  df_2= rating_df.groupby("movieId")["rating"].mean().reset_index()
 
   select_platform = pd.read_parquet(platforms[plataforma.lower()])
   select_platform = select_platform.query('type == "movie" and release_year == @anio')
