@@ -21,7 +21,6 @@ platforms = {
 def read_root():
   pass
 
-#malo
 @app.get('/get_max_duration/{anio}/{plataforma}/{dtype}')
 async def get_max_duration(anio: int ,
                            plataforma: str ,
@@ -44,8 +43,14 @@ async def get_max_duration(anio: int ,
 
 @app.get('/get_score_count/{plataforma}/{scored}/{anio}')
 async def get_score_count(plataforma: str, scored: float, anio: int):
-  
-  df_2 = pd.read_parquet(current_dir / 'app/numeros.parquet')
+  # https://drive.google.com/file/d/11uwe7zA_ph4MXevH_YDjiHBQy_4dXBSY/view?usp=sharing
+  url='https://drive.google.com/file/d/11uwe7zA_ph4MXevH_YDjiHBQy_4dXBSY/view?usp=sharing'
+  file_id=url.split('/')[-2]
+  dwn_url='https://drive.google.com/uc?id=' + file_id
+
+  df_2 = pd.read_parquet(dwn_url)
+
+  # df_2 = pd.read_parquet(current_dir / 'app/numeros.parquet')
   df_2= df_2.groupby("movieId")["rating"].mean().reset_index()
   df_2= pd.DataFrame({'id': df_2["movieId"], 'score': df_2["rating"]})
 
