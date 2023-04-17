@@ -1,21 +1,23 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 import pandas as pd
 from pathlib import Path
 
 app = FastAPI()
 current_dir = Path.cwd()
 
-hulu = pd.read_parquet(current_dir / 'app/hulu.parquet')
-amazon = pd.read_parquet(current_dir / 'app/amazon.parquet')
-disney = pd.read_parquet(current_dir / 'app/disney.parquet')
-netflix = pd.read_parquet(current_dir / 'app/netflix.parquet')
-
 platforms = {
-  "hulu": hulu,
-  "amazon": amazon,
-  "disney": disney,
-  "netflix": netflix
+  "hulu": current_dir / 'app/hulu.parquet',
+  "amazon": current_dir / 'app/hulu.parquet',
+  "disney": current_dir / 'app/hulu.parquet',
+  "netflix": current_dir / 'app/hulu.parquet'
 }
+
+df = pd.concat([
+  pd.read_parquet(platforms["hulu"]),
+  pd.read_parquet(platforms["amazon"]),
+  pd.read_parquet(platforms["disney"]),
+  pd.read_parquet(platforms["netflix"]),
+])
 
 @app.get("/")
 def read_root():
@@ -26,40 +28,28 @@ async def get_max_duration(anio: int ,
                            plataforma: str ,
                            dtype: str ):
 
-  df_f = platforms[plataforma.lower()]
+  df_f = pd.read_parquet(platforms[plataforma.lower()])
   df_f = df_f[df_f["type"] == "movie"]
   df_f["duration_int"] = df_f["duration_int"].replace("g", 0)
   df_f["duration_int"] = df_f["duration_int"].astype(int)
-  df_f["release_year"] = df_f["release_year"].astype(int)
-  df_f["id"] = df_f["id"].astype(str)
-  df_f["duration_type"] = df_f["duration_type"].astype(str)
   df_f = df_f.sort_values('duration_int', ascending=False)
-  df_f = df_f.loc[df_f['release_year'] == anio]
-
-  df_f = df_f.loc[df_f['duration_type'] == dtype]
-  df_f= df_f.iloc[0]["title"]
+  df_f = df_f.query('release_year == @anio and duration_type == @dtype')
+  df_f = df_f.iloc[0]["title"]
   return {'pelicula': df_f}
-
 
 @app.get('/get_score_count/{plataforma}/{scored}/{anio}')
 async def get_score_count(plataforma: str, scored: float, anio: int):
-  # https://drive.google.com/file/d/11uwe7zA_ph4MXevH_YDjiHBQy_4dXBSY/view?usp=sharing
-  url='https://drive.google.com/file/d/11uwe7zA_ph4MXevH_YDjiHBQy_4dXBSY/view?usp=sharing'
-  file_id=url.split('/')[-2]
-  dwn_url='https://drive.google.com/uc?id=' + file_id
+  df_2 = pd.read_parquet(current_dir / 'app/numeros.parquet')
 
-  df_2 = pd.read_parquet(dwn_url)
-
-  # df_2 = pd.read_parquet(current_dir / 'app/numeros.parquet')
   df_2= df_2.groupby("movieId")["rating"].mean().reset_index()
   df_2= pd.DataFrame({'id': df_2["movieId"], 'score': df_2["rating"]})
 
-  select_platform = platforms[plataforma.lower()]
-  select_platform = select_platform[ select_platform['type'] == 'movie']
-  select_platform= select_platform.loc[select_platform['release_year'] == anio]
+  select_platform = pd.read_parquet(platforms[plataforma.lower()])
+  select_platform = select_platform.query('type == "movie" and release_year == @anio')
 
   df_2= pd.merge(select_platform, df_2, on="id")
-  df_2= df_2[df_2['score'] > scored]
+  # df_2= df_2[df_2['score'] > scored]
+  df_2 = df_2.query('score > @scored')
 
   return {
         'plataforma': plataforma,
@@ -77,13 +67,8 @@ async def get_count_platform(plataforma: str):
 
 @app.get('/get_actor/{plataforma}/{anio}')
 async def get_actor(plataforma: str, anio: int):
-  platform_arg = plataforma.lower()
-  if platform_arg in platforms.keys():
-    plataf = platforms[platform_arg]
 
-  else:
-    raise HTTPException(status_code=400, detail="La plataform no se encuentra")
-
+  plataf = pd.read_parquet(platforms[plataforma.lower()])
   plataf = plataf[ plataf["release_year"] == anio]
   plataf = plataf[ plataf["cast"] != 'g']
   plataf = plataf[ plataf["cast"] != '1']
@@ -102,32 +87,15 @@ async def get_actor(plataforma: str, anio: int):
 
 @app.get('/prod_per_county/{tipo}/{pais}/{anio}')
 async def prod_per_county(tipo: str, pais: str, anio: int):
-  df_f = pd.concat([hulu, amazon, disney, netflix])
-  pais_l = pais.lower()
-  tipo_enum = ['tv show', 'movie']
-
-  df_f = df_f[ df_f['release_year'] == anio]
-  df_f = df_f[ df_f['country'] == pais_l]
-  if tipo in tipo_enum:
-    df_f = df_f[df_f["type"] == tipo]
-  else: 
-    raise HTTPException(status_code=400, detail="El tipo no se encuentra")
-
+  df_f = df.loc[(df['release_year'] == anio) & (df['country'] == pais.lower()) & (df['type'] == tipo)]
   respuesta = df_f.shape[0]
-  print(respuesta)
-  
   return {'pais': pais, 'anio': anio, 'peliculas': respuesta}
 
 
 @app.get('/get_contents/{rating}')
 async def get_contents(rating: str):
-  df_f = pd.concat([hulu, amazon, disney, netflix])
-  df_f = df_f[ df_f["rating"] == rating]
+  df_f = df.loc[df["rating"] == rating]
   respuesta = df_f.shape[0]
-
   return {'rating': rating, 'contenido': respuesta}
-
-
-# @app.get('/get_recomendation/{title}')
-# def get_recomendation(title,):
-#     return {'recomendacion':respuesta}
+ 
+ 
