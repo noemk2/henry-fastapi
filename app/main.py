@@ -33,12 +33,11 @@ df = pd.concat([hulu, amazon, disney, netflix])
 @app.get("/")
 def read_root():
   pass
-  # return {hulu.keys()[0]}
 
-@app.get("/get_max_duration/")
-async def get_max_duration(year: int = None,
-                           platform: str = None,
-                           duration_type: str = None):
+@app.get('/get_max_duration/{anio}/{plataforma}/{dtype}')
+async def get_max_duration(anio: int = None,
+                           plataforma: str = None,
+                           dtype: str = None):
   df_f = df[df["type"] == "movie"]
   df_f["duration_int"] = df_f["duration_int"].replace("g", 0)
 
@@ -49,17 +48,17 @@ async def get_max_duration(year: int = None,
 
   df_f = df_f.sort_values('duration_int', ascending=False)
 
-  if year is not None:
-    df_f = df_f.loc[df_f['release_year'] == year]
-  if platform is not None:
-    platform_arg = platform.lower()
+  if anio is not None:
+    df_f = df_f.loc[df_f['release_year'] == anio]
+  if plataforma is not None:
+    platform_arg = plataforma.lower()
     if platform_arg in platforms.keys():
       df_f = df_f.loc[df_f['id'].str[0] == platform_arg[0]]
     else:
       pass
 
-  if duration_type is not None:
-    df_f = df_f.loc[df_f['duration_type'] == duration_type]
+  if dtype is not None:
+    df_f = df_f.loc[df_f['duration_type'] == dtype]
   else:
     respuesta = df_f.iloc[0]["title"]
     return {'pelicula': respuesta}
@@ -68,7 +67,7 @@ async def get_max_duration(year: int = None,
   return {'pelicula': respuesta}
 
 
-@app.get("/get_score_count/")
+@app.get('/get_score_count/{plataforma}/{scored}/{anio}')
 async def get_score_count(plataforma: str, scored: float, anio: int):
   # df_2 = pd.concat([uno , dos , tres, cuatro , cinco , seis, siete, ocho])
   # print(df_2)
@@ -92,16 +91,16 @@ async def get_score_count(plataforma: str, scored: float, anio: int):
     }
 
 
-@app.get("/get_count_platform/")
-async def get_count_platform(platform: str):
-  select_platform = platforms[platform.lower()]
+@app.get('/get_count_platform/{plataforma}')
+async def get_count_platform(plataforma: str):
+  select_platform = platforms[plataforma.lower()]
   # return len(select_platform)
-  return {'plataforma': platform, 'peliculas': len(select_platform)}
+  return {'plataforma': plataforma, 'peliculas': len(select_platform)}
 
 
-@app.get("/get_actor/")
-async def get_actor(platform: str, year: int):
-  platform_arg = platform.lower()
+@app.get('/get_actor/{plataforma}/{anio}')
+async def get_actor(plataforma: str, anio: int):
+  platform_arg = plataforma.lower()
   print("hola hola                    HOLA")
   if platform_arg in platforms.keys():
     plataf = platforms[platform_arg]
@@ -109,7 +108,7 @@ async def get_actor(platform: str, year: int):
   else:
     raise HTTPException(status_code=400, detail="La plataform no se encuentra")
 
-  plataf = plataf[ plataf["release_year"] == year]
+  plataf = plataf[ plataf["release_year"] == anio]
   plataf = plataf[ plataf["cast"] != 'g']
   plataf = plataf[ plataf["cast"] != '1']
   nombres_actores = plataf['cast'].str.split(',|:').explode().str.strip()
@@ -118,14 +117,14 @@ async def get_actor(platform: str, year: int):
   apariciones = int(conteo_actores[0])
 
   return {
-        'plataforma': platform,
-        'anio': year,
+        'plataforma': plataforma,
+        'anio': anio,
         'actor': actor,
         'apariciones': apariciones 
     }
 
 
-@app.get("/prod_per_county/")
+@app.get('/prod_per_county/{tipo}/{pais}/{anio}')
 async def prod_per_county(tipo: str, pais: str, anio: int):
   pais_l = pais.lower()
   tipo_enum = ['tv show', 'movie']
@@ -143,7 +142,15 @@ async def prod_per_county(tipo: str, pais: str, anio: int):
   return {'pais': pais, 'anio': anio, 'peliculas': respuesta}
 
 
-@app.get("/get_contents/")
+@app.get('/get_contents/{rating}')
 async def get_contents(rating: str):
-  respuesta = 4
-  return {'recomendacion': respuesta}
+  df_f = df[ df["rating"] == rating]
+  respuesta = df_f.shape[0]
+
+  return {'rating': rating, 'contenido': respuesta}
+
+
+
+# @app.get('/get_recomendation/{title}')
+# def get_recomendation(title,):
+#     return {'recomendacion':respuesta}
