@@ -48,10 +48,11 @@ async def get_score_count(plataforma: str, scored: float, anio: int):
 
   df_2 = pd.merge(df_2, select_platform, left_on='movieId', right_on="id")
   df_2 = df_2.query('rating_x > @scored')
+  df_2 = df_2.shape[0]
 
   return {
         'plataforma': plataforma,
-        'cantidad': len(df_2),
+        'cantidad': df_2,
         'anio': anio,
         'score': scored 
     }
