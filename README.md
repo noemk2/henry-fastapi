@@ -37,6 +37,8 @@ source venv/bin/activate
 </code></pre>
 
 <h2>API endpoints</h2>
+Análisis exploratorio de los datos: https://noemk2.github.io/henry-fastapi/
+
 <p>Descripción de los endpoints de la API y cómo usarlos.</p>
 
 <h3>Endpoint 1</h3>
