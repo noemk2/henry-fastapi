@@ -43,31 +43,31 @@ Análisis exploratorio de los datos: https://noemk2.github.io/henry-fastapi/
 
 <h3>Endpoint 1</h3>
 <p>Descripción del primer endpoint y cómo usarlo.</p>
-<a>https://henry-fastapi.onrender.com/get_max_duration</a>
+https://henry-fastapi.onrender.com/get_max_duration
 
 <h3>Endpoint 2</h3>
 <p>Descripción del segundo endpoint y cómo usarlo.</p>
-<a>https://henry-fastapi.onrender.com/get_score_count</a>
+https://henry-fastapi.onrender.com/get_score_count
 
 <h3>Endpoint 3</h3>
 <p>Descripción del segundo endpoint y cómo usarlo.</p>
-<a>https://henry-fastapi.onrender.com/get_count_platform</a>
+https://henry-fastapi.onrender.com/get_count_platform
 
 <h3>Endpoint 4</h3>
 <p>Descripción del segundo endpoint y cómo usarlo.</p>
-<a>https://henry-fastapi.onrender.com/get_actor</a>
+https://henry-fastapi.onrender.com/get_actor
 
 <h3>Endpoint 5</h3>
 <p>Descripción del segundo endpoint y cómo usarlo.</p>
-<a>https://henry-fastapi.onrender.com/prod_per_county</a>
+https://henry-fastapi.onrender.com/prod_per_county
 
 <h3>Endpoint 6</h3>
 <p>Descripción del segundo endpoint y cómo usarlo.</p>
-<a>https://henry-fastapi.onrender.com/get_contents</a>
+https://henry-fastapi.onrender.com/get_contents
 
 <h3>Endpoint 7</h3>
 <p>Descripción del segundo endpoint y cómo usarlo.</p>
-<a>https://henry-fastapi.onrender.com/get_recomendation</a>
+https://henry-fastapi.onrender.com/get_recomendation
 
 
 <h2>Autor</h2>
