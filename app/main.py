@@ -104,7 +104,9 @@ async def get_contents(rating: str):
   respuesta = df_f.shape[0]
   return {'rating': rating, 'contenido': respuesta}
  
-# @app.get('/get_recomendation/{title}')
-# def get_recomendation(title,):
-    
-#     return {'recomendacion':respuesta}
+@app.get('/get_recomendation/{title}')
+def get_recomendation(title):
+  movies = pd.read_parquet(current_dir / 'overview.parquet')
+  movie_ratings = movies.groupby('title')['rating'].mean().sort_values(ascending=False)
+  respuesta= movie_ratings[:1]
+  return {'recomendacion':respuesta}
