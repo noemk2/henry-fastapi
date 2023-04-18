@@ -33,8 +33,8 @@ def get_select_plataform(plataforma, anio):
   return select_platform
 
 def get_merge(df_1, df_2, scored) -> int:
-  df_f = pd.merge(df_1, df_2, left_on='movieId', right_on="id")
-  df_f = df_f.query('rating_x > @scored')
+  df_f = pd.merge(df_1, df_2, left_on='id', right_on="movieId")
+  df_f = df_f.query('rating_y > @scored')
   return df_f.shape[0]
 
 
@@ -60,8 +60,9 @@ async def get_max_duration(anio: int ,
 async def get_score_count(plataforma: str, scored: float, anio: int):
   # df_2 = get_df_2()
   df_2 = pd.read_parquet(current_dir /"app/numeros_ff.parquet")
+
   select_platform = get_select_plataform(plataforma, anio)
-  resultado = get_merge(df_2, select_platform, scored)
+  resultado = get_merge(select_platform, df_2,  scored)
 
   return {
         'plataforma': plataforma,
@@ -107,3 +108,7 @@ async def get_contents(rating: str):
   respuesta = df_f.shape[0]
   return {'rating': rating, 'contenido': respuesta}
  
+# @app.get('/get_recomendation/{title}')
+# def get_recomendation(title,):
+    
+#     return {'recomendacion':respuesta}
