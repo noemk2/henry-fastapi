@@ -22,10 +22,6 @@ def get_rating():
     ]) 
   return df
 
-# def get_df_2():
-#   df_2 = pd.read_parquet(current_dir / "app/numeros_f.parquet")
-#   df_2= df_2.groupby("movieId")["rating"].mean().reset_index()
-#   return df_2
 
 def get_select_plataform(plataforma, anio):
   select_platform = pd.read_parquet(platforms[plataforma.lower()])
@@ -51,6 +47,7 @@ async def get_max_duration(anio: int ,
   df_f = df_f[df_f["type"] == "movie"]
   df_f["duration_int"] = df_f["duration_int"].replace("g", 0)
   df_f["duration_int"] = df_f["duration_int"].astype(int)
+  df_f['duration_type'] = df_f['duration_type'].replace('seasons', 'season')
   df_f = df_f.sort_values('duration_int', ascending=False)
   df_f = df_f.query('release_year == @anio and duration_type == @dtype')
   df_f = df_f.iloc[0]["title"]
@@ -58,7 +55,6 @@ async def get_max_duration(anio: int ,
 
 @app.get('/get_score_count/{plataforma}/{scored}/{anio}')
 async def get_score_count(plataforma: str, scored: float, anio: int):
-  # df_2 = get_df_2()
   df_2 = pd.read_parquet(current_dir /"app/numeros_ff.parquet")
 
   select_platform = get_select_plataform(plataforma, anio)
