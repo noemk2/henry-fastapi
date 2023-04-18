@@ -7,9 +7,9 @@ current_dir = Path.cwd()
 
 platforms = {
   "hulu": current_dir / 'app/hulu.parquet',
-  "amazon": current_dir / 'app/hulu.parquet',
-  "disney": current_dir / 'app/hulu.parquet',
-  "netflix": current_dir / 'app/hulu.parquet',
+  "amazon": current_dir / 'app/amazon.parquet',
+  "disney": current_dir / 'app/disney.parquet',
+  "netflix": current_dir / 'app/netflix.parquet',
 }
 
 
@@ -75,6 +75,7 @@ async def get_count_platform(plataforma: str):
 @app.get('/get_actor/{plataforma}/{anio}')
 async def get_actor(plataforma: str, anio: int):
   plataf = pd.read_parquet(platforms[plataforma.lower()])
+  print(plataf["cast"])
   plataf = plataf[ plataf["release_year"] == anio]
   plataf = plataf[ plataf["cast"] != 'g']
   plataf = plataf[ plataf["cast"] != '1']
