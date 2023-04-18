@@ -69,7 +69,7 @@ async def get_score_count(plataforma: str, scored: float, anio: int):
 
 @app.get('/get_count_platform/{plataforma}')
 async def get_count_platform(plataforma: str):
-  select_platform = platforms[plataforma.lower()]
+  select_platform = pd.read_parquet(platforms[plataforma.lower()])
   return {'plataforma': plataforma, 'peliculas': len(select_platform)}
 
 @app.get('/get_actor/{plataforma}/{anio}')
